@@ -119,10 +119,13 @@
 
             const options = await getFirmwareOptions();
 
+            const stableFile = options.find(file => file.name.includes('stable'));
+            const betaFile = options.find(file => file.name.includes('beta'));
+
             const stableOption = document.createElement('div');
             stableOption.innerHTML = `
                 <label class="radio">
-                    <input type="radio" name="firmware" value="${options.find(file => file.name.includes('stable')).download_url}" id="stableOption" checked>
+                    <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${stableFile.name}" id="stableOption" checked>
                     Latest Stable
                 </label>`;
             firmwareOptions.appendChild(stableOption);
@@ -130,7 +133,7 @@
             const betaOption = document.createElement('div');
             betaOption.innerHTML = `
                 <label class="radio">
-                    <input type="radio" name="firmware" value="${options.find(file => file.name.includes('beta')).download_url}" id="betaOption">
+                    <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${betaFile.name}" id="betaOption">
                     Beta
                 </label>`;
             firmwareOptions.appendChild(betaOption);
@@ -140,13 +143,14 @@
                     const option = document.createElement('div');
                     option.innerHTML = `
                         <label class="radio">
-                            <input type="radio" name="firmware" value="${file.download_url}">
+                            <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${file.name}">
                             ${file.name} (${new Date(file.commit.author.date).toISOString().split('T')[0]})
                         </label>`;
                     firmwareOptions.appendChild(option);
                 }
             });
         }
+
 
         async function populateOtherBinariesTable() {
             const tbody = document.getElementById('other-binaries');
