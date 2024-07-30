@@ -340,7 +340,7 @@ var device = null;
                     }
                 }
 
-                /*if (desc.DFUVersion == 0x011a && device.settings.alternate.interfaceProtocol == 0x02) {
+                if (desc.DFUVersion == 0x011a && device.settings.alternate.interfaceProtocol == 0x02) {
                     device = new dfuse.Device(device.device_, device.settings);
                     if (device.memoryInfo) {
                         let totalSize = 0;
@@ -367,7 +367,7 @@ var device = null;
                             memorySummary += `\n${hexAddr8(segment.start)}-${hexAddr8(segment.end-1)} (${propertySummary})`;
                         }
                     }
-                }*/
+                }
             }
 
             // Bind logging methods
