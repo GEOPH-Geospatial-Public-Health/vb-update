@@ -122,21 +122,25 @@
             const stableFile = options.find(file => file.name.includes('stable'));
             const betaFile = options.find(file => file.name.includes('beta'));
 
-            const stableOption = document.createElement('div');
-            stableOption.innerHTML = `
-                <label class="radio">
-                    <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${stableFile.name}" id="stableOption" checked>
-                    Latest Stable
-                </label>`;
-            firmwareOptions.appendChild(stableOption);
+            if (stableFile) {
+                const stableOption = document.createElement('div');
+                stableOption.innerHTML = `
+                    <label class="radio">
+                        <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${stableFile.name}" id="stableOption" checked>
+                        Latest Stable
+                    </label>`;
+                firmwareOptions.appendChild(stableOption);
+            }
 
-            const betaOption = document.createElement('div');
-            betaOption.innerHTML = `
-                <label class="radio">
-                    <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${betaFile.name}" id="betaOption">
-                    Beta
-                </label>`;
-            firmwareOptions.appendChild(betaOption);
+            if (betaFile) {
+                const betaOption = document.createElement('div');
+                betaOption.innerHTML = `
+                    <label class="radio">
+                        <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${betaFile.name}" id="betaOption">
+                        Beta
+                    </label>`;
+                firmwareOptions.appendChild(betaOption);
+            }
 
             options.forEach(file => {
                 if (!file.name.includes('stable') && !file.name.includes('beta')) {
@@ -150,6 +154,7 @@
                 }
             });
         }
+
 
 
         async function populateOtherBinariesTable() {
