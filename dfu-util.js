@@ -302,6 +302,15 @@ var device = null;
             }
         }
 
+        function isInternalFlashInterface(interface) {
+            const cfg = interface.configuration.configurationValue;
+            const intf = interface["interface"].interfaceNumber;
+            const alt = interface.alternate.alternateSetting;
+            const name = interface.name;
+    
+            return cfg === 1 && intf === 0 && alt === 0 && name && name.startsWith("@Internal Flash");
+        }
+    
         async function connect(device) {
             try {
                 await device.open();
@@ -309,7 +318,13 @@ var device = null;
                 onDisconnect(error);
                 throw error;
             }
-
+    
+            let validInterface = isInternalFlashInterface(device.settings);
+            if (!validInterface) {
+                await device.close();
+                throw new Error("No valid DFU interface found: cfg=1, intf=0, alt=0, name starts with '@Internal Flash'.");
+            }
+    
             // Attempt to parse the DFU functional descriptor
             let desc = {};
             try {
@@ -318,7 +333,7 @@ var device = null;
                 onDisconnect(error);
                 throw error;
             }
-
+    
             let memorySummary = "";
             if (desc && Object.keys(desc).length > 0) {
                 device.properties = desc;
@@ -329,7 +344,7 @@ var device = null;
                 if (desc.CanDnload) {
                     manifestationTolerant = desc.ManifestationTolerant;
                 }
-
+    
                 if (device.settings.alternate.interfaceProtocol == 0x02) {
                     if (!desc.CanUpload) {
                         uploadButton.disabled = true;
@@ -339,7 +354,7 @@ var device = null;
                         dnloadButton.disabled = true;
                     }
                 }
-
+    
                 if (desc.DFUVersion == 0x011a && device.settings.alternate.interfaceProtocol == 0x02) {
                     device = new dfuse.Device(device.device_, device.settings);
                     if (device.memoryInfo) {
@@ -363,24 +378,24 @@ var device = null;
                             if (!propertySummary) {
                                 propertySummary = "inaccessible";
                             }
-
+    
                             memorySummary += `\n${hexAddr8(segment.start)}-${hexAddr8(segment.end-1)} (${propertySummary})`;
                         }
                     }
                 }
             }
-
+    
             // Bind logging methods
             device.logDebug = logDebug;
             device.logInfo = logInfo;
             device.logWarning = logWarning;
             device.logError = logError;
             device.logProgress = logProgress;
-
+    
             // Clear logs
             clearLog(uploadLog);
             clearLog(downloadLog);
-
+    
             // Display basic USB information
             statusDisplay.textContent = '';
             connectButton.textContent = 'Disconnect';
@@ -389,10 +404,10 @@ var device = null;
                 "MFG: " + device.device_.manufacturerName + "\n" +
                 "Serial: " + device.device_.serialNumber + "\n"
             );
-
+    
             // Display basic dfu-util style info
             dfuDisplay.textContent = formatDFUSummary(device) + "\n" + memorySummary;
-
+    
             // Update buttons based on capabilities
             if (device.settings.alternate.interfaceProtocol == 0x01) {
                 // Runtime
@@ -407,9 +422,9 @@ var device = null;
                 downloadButton.disabled = false;
                 firmwareFileField.disabled = false;
             }
-
+    
             if (device.memoryInfo) {
-                let dfuseFieldsDiv = document.querySelector("#dfuseFields")
+                let dfuseFieldsDiv = document.querySelector("#dfuseFields");
                 dfuseFieldsDiv.hidden = false;
                 dfuseStartAddressField.disabled = false;
                 dfuseUploadSizeField.disabled = false;
@@ -422,12 +437,12 @@ var device = null;
                     dfuseUploadSizeField.max = maxReadSize;
                 }
             } else {
-                let dfuseFieldsDiv = document.querySelector("#dfuseFields")
+                let dfuseFieldsDiv = document.querySelector("#dfuseFields");
                 dfuseFieldsDiv.hidden = true;
                 dfuseStartAddressField.disabled = true;
                 dfuseUploadSizeField.disabled = true;
             }
-
+    
             return device;
         }
 
