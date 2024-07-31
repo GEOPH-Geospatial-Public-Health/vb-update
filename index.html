@@ -102,7 +102,16 @@
             const url = `https://api.github.com/repos/${org}/${repo}/contents/${project}`;
             const response = await fetch(url);
             const data = await response.json();
-            return data.filter(file => file.name.endsWith('.bin')).sort((a, b) => a.name.localeCompare(b.name));
+            const binaries = data.filter(file => file.name.endsWith('.bin')).sort((a, b) => a.name.localeCompare(b.name));
+            
+            for (const file of binaries) {
+                const commitsUrl = `https://api.github.com/repos/${org}/${repo}/commits?path=${project}/${file.name}`;
+                const commitsResponse = await fetch(commitsUrl);
+                const commitsData = await commitsResponse.json();
+                file.lastModified = commitsData.length > 0 ? new Date(commitsData[0].commit.author.date).toISOString().split('T')[0] : 'Unknown';
+            }
+
+            return binaries;
         }
 
         async function populateFirmwareOptions() {
@@ -148,14 +157,12 @@
                     option.innerHTML = `
                         <label class="radio">
                             <input type="radio" name="firmware" value="https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${file.name}">
-                            ${file.name} (${new Date(file.commit.author.date).toISOString().split('T')[0]})
+                            ${file.name} (${file.lastModified})
                         </label>`;
                     firmwareOptions.appendChild(option);
                 }
             });
         }
-
-
 
         async function populateOtherBinariesTable() {
             const tbody = document.getElementById('other-binaries');
@@ -167,11 +174,10 @@
                     const nameCell = document.createElement('td');
                     const dateCell = document.createElement('td');
                     const link = document.createElement('a');
-                    link.href = file.download_url;
+                    link.href = `https://raw.githubusercontent.com/${org}/${repo}/main/${project}/${file.name}`;
                     link.textContent = file.name;
                     nameCell.appendChild(link);
-                    const lastModified = new Date(file.commit.author.date).toISOString().split('T')[0];
-                    dateCell.textContent = lastModified;
+                    dateCell.textContent = file.lastModified;
                     row.appendChild(nameCell);
                     row.appendChild(dateCell);
                     tbody.appendChild(row);
