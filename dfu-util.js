@@ -90,34 +90,6 @@ var device = null;
         }
     }
 
-    function populateInterfaceList(form, device_, interfaces) {
-        let old_choices = Array.from(form.getElementsByTagName("div"));
-        for (let radio_div of old_choices) {
-            form.removeChild(radio_div);
-        }
-
-        let button = form.getElementsByTagName("button")[0];
-
-        for (let i=0; i < interfaces.length; i++) {
-            let radio = document.createElement("input");
-            radio.type = "radio";
-            radio.name = "interfaceIndex";
-            radio.value = i;
-            radio.id = "interface" + i;
-            radio.required = true;
-
-            let label = document.createElement("label");
-            label.textContent = formatDFUInterfaceAlternate(interfaces[i]);
-            label.className = "radio"
-            label.setAttribute("for", "interface" + i);
-
-            let div = document.createElement("div");
-            div.appendChild(radio);
-            div.appendChild(label);
-            form.insertBefore(div, button);
-        }
-    }
-
     function getDFUDescriptorProperties(device) {
         // Attempt to read the DFU functional descriptor
         // TODO: read the selected configuration's descriptor
@@ -225,29 +197,10 @@ var device = null;
         let statusDisplay = document.querySelector("#status");
         let infoDisplay = document.querySelector("#usbInfo");
         let dfuDisplay = document.querySelector("#dfuInfo");
-        //let vidField = document.querySelector("#vid");
-        //let interfaceDialog = document.querySelector("#interfaceDialog");
-        //let interfaceForm = document.querySelector("#interfaceForm");
-        //let interfaceSelectButton = document.querySelector("#selectInterface");
 
         let searchParams = new URLSearchParams(window.location.search);
         let fromLandingPage = false;
         let vid = 0x0483;
-        // Set the vendor ID from the landing page URL
-        if (searchParams.has("vid")) {
-            const vidString = searchParams.get("vid");
-            try {
-                if (vidString.toLowerCase().startsWith("0x")) {
-                    vid = parseInt(vidString, 16);
-                } else {
-                    vid = parseInt(vidString, 10);
-                }
-                vidField.value = "0x" + hex4(vid).toUpperCase();
-                fromLandingPage = true;
-            } catch (error) {
-                console.log("Bad VID " + vidString + ":" + error);
-            }
-        }
 
         // Grab the serial number from the landing page
         let serial = "";
@@ -467,10 +420,6 @@ var device = null;
             );
         }
 
-        /*vidField.addEventListener("change", function() {
-            vid = parseInt(vidField.value, 16);
-        });*/
-
         transferSizeField.addEventListener("change", function() {
             transferSize = parseInt(transferSizeField.value);
         });
@@ -510,17 +459,13 @@ var device = null;
                         if (interfaces.length == 0) {
                             console.log(selectedDevice);
                             statusDisplay.textContent = "The selected device does not have any USB DFU interfaces.";
-                        /*} else if (interfaces.length == 1) {
-                            await fixInterfaceNames(selectedDevice, interfaces);
-                            device = await connect(new dfu.Device(selectedDevice, interfaces[0]));*/
                         } else {
                             //print all interfaces using formatDFUInterfaceAlternate
                             for (let i = 0; i < interfaces.length; i++) {
                                 console.log(formatDFUInterfaceAlternate(interfaces[i]));
                             }
 
-                            //check if any interface passes isCorrectInternalFlashInterface
-                            //if more than 1 passes select the first one
+                            //check if any interface passes isCorrectInternalFlashInterface and select the first one
                             const validInterfaces = interfaces.filter(isCorrectInternalFlashInterface);
                             if (validInterfaces.length === 0) {
                                 statusDisplay.textContent = "No valid DFU interface found: cfg=1, intf=0, alt=0, name starts with '@Internal Flash'.";
@@ -529,23 +474,6 @@ var device = null;
                                 await fixInterfaceNames(selectedDevice, validInterfaces);
                                 device = await connect(new dfu.Device(selectedDevice, validInterfaces[0]));
                             }
-
-                            /*await fixInterfaceNames(selectedDevice, interfaces);
-                            populateInterfaceList(interfaceForm, selectedDevice, interfaces);
-                            async function connectToSelectedInterface() {
-                                interfaceForm.removeEventListener('submit', this);
-                                const index = interfaceForm.elements["interfaceIndex"].value;
-                                device = await connect(new dfu.Device(selectedDevice, interfaces[index]));
-                            }
-
-                            interfaceForm.addEventListener('submit', connectToSelectedInterface);
-
-                            interfaceDialog.addEventListener('cancel', function () {
-                                interfaceDialog.removeEventListener('cancel', this);
-                                interfaceForm.removeEventListener('submit', connectToSelectedInterface);
-                            });
-
-                            interfaceDialog.showModal();*/
                         }
                     }
                 ).catch(error => {
