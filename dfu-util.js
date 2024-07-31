@@ -514,6 +514,11 @@ var device = null;
                             await fixInterfaceNames(selectedDevice, interfaces);
                             device = await connect(new dfu.Device(selectedDevice, interfaces[0]));*/
                         } else {
+                            //print all interfaces using formatDFUInterfaceAlternate
+                            for (let i = 0; i < interfaces.length; i++) {
+                                console.log(formatDFUInterfaceAlternate(interfaces[i]));
+                            }
+
                             //check if any interface passes isCorrectInternalFlashInterface
                             //if more than 1 passes select the first one
                             const validInterfaces = interfaces.filter(isCorrectInternalFlashInterface);
