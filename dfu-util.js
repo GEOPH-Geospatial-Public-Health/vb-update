@@ -338,17 +338,28 @@ var device = null;
             clearLog(uploadLog);
             clearLog(downloadLog);
 
-            // Display basic USB information
-            statusDisplay.textContent = '';
-            connectButton.textContent = 'Disconnect';
-            infoDisplay.textContent = (
-                "Name: " + device.device_.productName + "\n" +
-                "MFG: " + device.device_.manufacturerName + "\n" +
-                "Serial: " + device.device_.serialNumber + "\n"
-            );
+            let statusOnPage = false;
+            if (statusOnPage) {
+                // Display basic USB information
+                statusDisplay.textContent = '';
+                connectButton.textContent = 'Disconnect';
+                infoDisplay.textContent = (
+                    "Name: " + device.device_.productName + "\n" +
+                    "MFG: " + device.device_.manufacturerName + "\n" +
+                    "Serial: " + device.device_.serialNumber + "\n"
+                );
 
-            // Display basic dfu-util style info
-            dfuDisplay.textContent = formatDFUSummary(device) + "\n" + memorySummary;
+                // Display basic dfu-util style info
+                dfuDisplay.textContent = formatDFUSummary(device) + "\n" + memorySummary;
+            } else {
+                //log to console instead
+                console.log(
+                    "Name: " + device.device_.productName + "\n" +
+                    "MFG: " + device.device_.manufacturerName + "\n" +
+                    "Serial: " + device.device_.serialNumber + "\n"
+                );
+                console.log(formatDFUSummary(device) + "\n" + memorySummary);
+            }
 
             // Update buttons based on capabilities
             if (device.settings.alternate.interfaceProtocol == 0x01) {
