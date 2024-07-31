@@ -185,6 +185,27 @@
             });
         }
 
+        async function fixInterfaceNames(device_, interfaces) {
+            // Check if any interface names were not read correctly
+            if (interfaces.some(intf => (intf.name == null))) {
+                // Manually retrieve the interface name string descriptors
+                let tempDevice = new dfu.Device(device_, interfaces[0]);
+                await tempDevice.device_.open();
+                await tempDevice.device_.selectConfiguration(1);
+                let mapping = await tempDevice.readInterfaceNames();
+                await tempDevice.close();
+
+                for (let intf of interfaces) {
+                    if (intf.name === null) {
+                        let configIndex = intf.configuration.configurationValue;
+                        let intfNumber = intf["interface"].interfaceNumber;
+                        let alt = intf.alternate.alternateSetting;
+                        intf.name = mapping[configIndex][intfNumber][alt];
+                    }
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             await populateFirmwareOptions();
             await populateOtherBinariesTable();
