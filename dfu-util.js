@@ -303,7 +303,7 @@ var device = null;
         }
 
         function isCorrectInternalFlashInterface(iface) {
-            return iface.name && iface.name.startsWith("@Internal Flash");
+            return iface.name && iface.name.includes("Internal Flash");
         }
     
         async function connect(device) {
@@ -510,9 +510,9 @@ var device = null;
                         if (interfaces.length == 0) {
                             console.log(selectedDevice);
                             statusDisplay.textContent = "The selected device does not have any USB DFU interfaces.";
-                        } else if (interfaces.length == 1) {
+                        /*} else if (interfaces.length == 1) {
                             await fixInterfaceNames(selectedDevice, interfaces);
-                            device = await connect(new dfu.Device(selectedDevice, interfaces[0]));
+                            device = await connect(new dfu.Device(selectedDevice, interfaces[0]));*/
                         } else {
                             //check if any interface passes isCorrectInternalFlashInterface
                             //if more than 1 passes select the first one
