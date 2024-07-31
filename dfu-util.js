@@ -302,11 +302,11 @@ var device = null;
             }
         }
 
-        function isInternalFlashInterface(interface) {
-            const cfg = interface.configuration.configurationValue;
-            const intf = interface["interface"].interfaceNumber;
-            const alt = interface.alternate.alternateSetting;
-            const name = interface.name;
+        function isCorrectInternalFlashInterface(iface) {
+            const cfg = iface.configuration.configurationValue;
+            const intf = iface["interface"].interfaceNumber;
+            const alt = iface.alternate.alternateSetting;
+            const name = iface.name;
     
             return cfg === 1 && intf === 0 && alt === 0 && name && name.startsWith("@Internal Flash");
         }
@@ -319,7 +319,7 @@ var device = null;
                 throw error;
             }
     
-            let validInterface = isInternalFlashInterface(device.settings);
+            let validInterface = isCorrectInternalFlashInterface(device.settings);
             if (!validInterface) {
                 await device.close();
                 throw new Error("No valid DFU interface found: cfg=1, intf=0, alt=0, name starts with '@Internal Flash'.");
