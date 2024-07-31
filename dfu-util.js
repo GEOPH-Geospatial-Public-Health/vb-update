@@ -303,7 +303,7 @@ var device = null;
         }
 
         function isCorrectInternalFlashInterface(iface) {
-            return iface.name && iface.name.includes("Internal Flash");
+            return true;//iface.name && iface.name.includes("Internal Flash");
         }
     
         async function connect(device) {
