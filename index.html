@@ -21,6 +21,9 @@
       input:invalid {
         color:red;
       }
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -40,13 +43,15 @@
     </fieldset>
     <fieldset>
       <form id="configForm">
-        <label for="transferSize">Transfer Size:</label>
-        <input type="number" name="transferSize" id="transferSize" value="1024"/>
-        <div id="dfuseFields" hidden="true">
-          <label for="dfuseStartAddress">DfuSe Start Address:</label>
-          <input type="text" name="dfuseStartAddress" id="dfuseStartAddress" title="Initial memory address to read/write from (hex)" size="10" pattern="0x[A-Fa-f0-9]+"/>
-          <label for="dfuseUploadSize">DfuSe Upload Size:</label>
-          <input type="number" name="dfuseUploadSize" id="dfuseUploadSize" min="1"/>
+        <div id="xferDetails" class="hidden">
+            <label for="transferSize">Transfer Size:</label>
+            <input type="number" name="transferSize" id="transferSize" value="1024"/>
+            <div id="dfuseFields" hidden="true">
+            <label for="dfuseStartAddress">DfuSe Start Address:</label>
+            <input type="text" name="dfuseStartAddress" id="dfuseStartAddress" title="Initial memory address to read/write from (hex)" size="10" pattern="0x[A-Fa-f0-9]+"/>
+            <label for="dfuseUploadSize">DfuSe Upload Size:</label>
+            <input type="number" name="dfuseUploadSize" id="dfuseUploadSize" min="1"/>
+            </div>
         </div>
       
         <legend>DFU mode</legend>
