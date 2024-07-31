@@ -226,9 +226,9 @@ var device = null;
         let infoDisplay = document.querySelector("#usbInfo");
         let dfuDisplay = document.querySelector("#dfuInfo");
         //let vidField = document.querySelector("#vid");
-        let interfaceDialog = document.querySelector("#interfaceDialog");
-        let interfaceForm = document.querySelector("#interfaceForm");
-        let interfaceSelectButton = document.querySelector("#selectInterface");
+        //let interfaceDialog = document.querySelector("#interfaceDialog");
+        //let interfaceForm = document.querySelector("#interfaceForm");
+        //let interfaceSelectButton = document.querySelector("#selectInterface");
 
         let searchParams = new URLSearchParams(window.location.search);
         let fromLandingPage = false;
@@ -303,12 +303,7 @@ var device = null;
         }
 
         function isCorrectInternalFlashInterface(iface) {
-            const cfg = iface.configuration.configurationValue;
-            const intf = iface["interface"].interfaceNumber;
-            const alt = iface.alternate.alternateSetting;
-            const name = iface.name;
-    
-            return cfg === 1 && intf === 0 && alt === 0 && name && name.startsWith("@Internal Flash");
+            return iface.name && iface.name.startsWith("@Internal Flash");
         }
     
         async function connect(device) {
