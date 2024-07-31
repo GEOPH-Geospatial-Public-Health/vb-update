@@ -318,13 +318,7 @@ var device = null;
                 onDisconnect(error);
                 throw error;
             }
-    
-            let validInterface = isCorrectInternalFlashInterface(device.settings);
-            if (!validInterface) {
-                await device.close();
-                throw new Error("No valid DFU interface found: cfg=1, intf=0, alt=0, name starts with '@Internal Flash'.");
-            }
-    
+
             // Attempt to parse the DFU functional descriptor
             let desc = {};
             try {
@@ -333,7 +327,7 @@ var device = null;
                 onDisconnect(error);
                 throw error;
             }
-    
+
             let memorySummary = "";
             if (desc && Object.keys(desc).length > 0) {
                 device.properties = desc;
@@ -344,7 +338,7 @@ var device = null;
                 if (desc.CanDnload) {
                     manifestationTolerant = desc.ManifestationTolerant;
                 }
-    
+
                 if (device.settings.alternate.interfaceProtocol == 0x02) {
                     if (!desc.CanUpload) {
                         uploadButton.disabled = true;
@@ -354,7 +348,7 @@ var device = null;
                         dnloadButton.disabled = true;
                     }
                 }
-    
+
                 if (desc.DFUVersion == 0x011a && device.settings.alternate.interfaceProtocol == 0x02) {
                     device = new dfuse.Device(device.device_, device.settings);
                     if (device.memoryInfo) {
@@ -384,18 +378,18 @@ var device = null;
                     }
                 }
             }
-    
+
             // Bind logging methods
             device.logDebug = logDebug;
             device.logInfo = logInfo;
             device.logWarning = logWarning;
             device.logError = logError;
             device.logProgress = logProgress;
-    
+
             // Clear logs
             clearLog(uploadLog);
             clearLog(downloadLog);
-    
+
             // Display basic USB information
             statusDisplay.textContent = '';
             connectButton.textContent = 'Disconnect';
@@ -404,10 +398,10 @@ var device = null;
                 "MFG: " + device.device_.manufacturerName + "\n" +
                 "Serial: " + device.device_.serialNumber + "\n"
             );
-    
+
             // Display basic dfu-util style info
             dfuDisplay.textContent = formatDFUSummary(device) + "\n" + memorySummary;
-    
+
             // Update buttons based on capabilities
             if (device.settings.alternate.interfaceProtocol == 0x01) {
                 // Runtime
@@ -422,7 +416,7 @@ var device = null;
                 downloadButton.disabled = false;
                 firmwareFileField.disabled = false;
             }
-    
+
             if (device.memoryInfo) {
                 let dfuseFieldsDiv = document.querySelector("#dfuseFields");
                 dfuseFieldsDiv.hidden = false;
@@ -442,7 +436,7 @@ var device = null;
                 dfuseStartAddressField.disabled = true;
                 dfuseUploadSizeField.disabled = true;
             }
-    
+
             return device;
         }
 
@@ -525,7 +519,18 @@ var device = null;
                             await fixInterfaceNames(selectedDevice, interfaces);
                             device = await connect(new dfu.Device(selectedDevice, interfaces[0]));
                         } else {
-                            await fixInterfaceNames(selectedDevice, interfaces);
+                            //check if any interface passes isCorrectInternalFlashInterface
+                            //if more than 1 passes select the first one
+                            const validInterfaces = interfaces.filter(isCorrectInternalFlashInterface);
+                            if (validInterfaces.length === 0) {
+                                statusDisplay.textContent = "No valid DFU interface found: cfg=1, intf=0, alt=0, name starts with '@Internal Flash'.";
+                                return;
+                            } else {
+                                await fixInterfaceNames(selectedDevice, validInterfaces);
+                                device = await connect(new dfu.Device(selectedDevice, validInterfaces[0]));
+                            }
+
+                            /*await fixInterfaceNames(selectedDevice, interfaces);
                             populateInterfaceList(interfaceForm, selectedDevice, interfaces);
                             async function connectToSelectedInterface() {
                                 interfaceForm.removeEventListener('submit', this);
@@ -540,7 +545,7 @@ var device = null;
                                 interfaceForm.removeEventListener('submit', connectToSelectedInterface);
                             });
 
-                            interfaceDialog.showModal();
+                            interfaceDialog.showModal();*/
                         }
                     }
                 ).catch(error => {
